@@ -1,74 +1,102 @@
 # 🚀 LinkedIn Insights Microservice
 
-A robust, scalable FastAPI-based microservice for fetching and analyzing LinkedIn company page data.
-
 ## 📋 Table of Contents
 
-- [Features](#features)
-- [Architecture](#architecture)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Usage](#usage)
-- [API Endpoints](#api-endpoints)
-- [Testing](#testing)
-- [Deployment](#deployment)
+- [Features]
+- [Tech Stack]
+- [Architecture]
+- [Prerequisites]
+- [Installation]
+- [Configuration]
+- [Quick Start]
+- [API Documentation]
+- [Testing]
+- [Troubleshooting]
+- [Project Structure]
+- [Contributing]
+- [License]
 
 ---
 
 ## ✨ Features
 
-### Mandatory Features ✅
-- ✅ Multi-method LinkedIn scraping (Proxycurl API, RapidAPI, Custom Selenium)
-- ✅ PostgreSQL database with proper entity relationships
-- ✅ RESTful API with pagination and filtering
-- ✅ Fetch company details, posts, comments, and employees
-- ✅ Advanced filtering (follower range, industry, name search)
-- ✅ Postman collection included
+### Core Features ✅
+- 🔍 **LinkedIn Company Scraping**
+  - Company profile (name, description, website, industry)
+  - Follower count and employee count
+  - Recent posts (15-25 posts)
+  - Employee profiles
+  - Post comments
 
-### Bonus Features 🎁
-- ✅ AI-powered company summaries (OpenAI/Anthropic)
-- ✅ Async programming throughout
-- ✅ Redis caching with configurable TTL
-- ✅ Docker containerization
-- ✅ Cloud storage support (AWS S3, Google Cloud Storage)
-- ✅ Comprehensive error handling
-- ✅ Health check endpoints
+- 💾 **Supabase Database Integration**
+  - Persistent storage with relationships
+  - PostgreSQL with proper schema design
+  - Automatic data normalization
+
+- 🔎 **Advanced Filtering**
+  - Filter by follower count range (20k-40k)
+  - Search by company name
+  - Filter by industry
+  - Pagination support
+
+- 🤖 **AI-Powered Insights** (Bonus)
+  - Company analysis using Google Gemini 2.0 Flash
+  - Follower demographics analysis
+  - Content strategy insights
+  - Engagement metrics
+
+- ⚡ **Performance Optimizations** (Bonus)
+  - Async API operations
+  - Efficient database queries
+  - Smart caching strategies
+
+---
+
+## 🛠️ Tech Stack
+
+### Backend
+- **Framework**: FastAPI 0.109.0
+- **Language**: Python 3.11+
+- **Database**: Supabase (PostgreSQL)
+- **Web Scraping**: Selenium + ChromeDriver
+- **AI**: Google Gemini 2.0 Flash
+
+### Key Libraries
+```
+fastapi==0.109.0
+uvicorn==0.27.0
+supabase==2.3.4
+selenium==4.16.0
+google-generativeai==0.3.2
+pydantic==2.5.3
+python-dotenv==1.0.0
+```
 
 ---
 
 ## 🏗️ Architecture
 
 ```
-┌─────────────┐
-│   Client    │
-└──────┬──────┘
-       │
-       ▼
-┌─────────────────────────────────┐
-│      FastAPI Application        │
-│  ┌──────────────────────────┐  │
-│  │   API Routes Layer       │  │
-│  └──────────┬───────────────┘  │
-│             │                   │
-│  ┌──────────▼───────────────┐  │
-│  │   Business Logic Layer   │  │
-│  │  • ScraperService        │  │
-│  │  • CacheService          │  │
-│  │  • AISummaryService      │  │
-│  └──────────┬───────────────┘  │
-│             │                   │
-│  ┌──────────▼───────────────┐  │
-│  │   Data Access Layer      │  │
-│  │  • SQLAlchemy Models     │  │
-│  └──────────┬───────────────┘  │
-└─────────────┼───────────────────┘
-              │
-     ┌────────┴────────┐
-     ▼                 ▼
-┌─────────┐      ┌─────────┐
-│PostgreSQL│      │  Redis  │
-└─────────┘      └─────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                     FastAPI Application                      │
+├─────────────────────────────────────────────────────────────┤
+│                                                               │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
+│  │   API Layer  │  │   Services   │  │  AI Service  │      │
+│  │  (Routes)    │→ │  (Scraper)   │→ │   (Gemini)   │      │
+│  └──────────────┘  └──────────────┘  └──────────────┘      │
+│         ↓                  ↓                                 │
+│  ┌──────────────────────────────────────────┐              │
+│  │          Supabase Database                │              │
+│  │  (pages, posts, employees, comments)      │              │
+│  └──────────────────────────────────────────┘              │
+│                                                               │
+└─────────────────────────────────────────────────────────────┘
+         ↓                                    ↓
+    ┌─────────┐                          ┌─────────┐
+    │LinkedIn │                          │ Gemini  │
+    │  Pages  │                          │   API   │
+    └─────────┘                          └─────────┘
 ```
 
 ### Database Schema
@@ -83,180 +111,244 @@ pages (1) ──────> (*) posts (1) ──────> (*) comments
 
 ## 📦 Prerequisites
 
-- Python 3.11+
-- PostgreSQL 15+
-- Redis 7+
-- Docker & Docker Compose (optional)
-- LinkedIn API Key (Proxycurl recommended)
+Before you begin, ensure you have:
+
+1. **Python 3.11+** installed
+   ```bash
+   python --version  # Should show 3.11 or higher
+   ```
+
+2. **Google Chrome** browser installed
+
+3. **Supabase Account** (Free)
+   - Sign up at [supabase.com](https://supabase.com)
+
+4. **Google Gemini API Key** (Free)
+   - Get from [Google AI Studio](https://makersuite.google.com/app/apikey)
+
+5. **LinkedIn Account**
+   - For scraping (preferably a test account)
+   - 2FA disabled (or handle manually during login)
 
 ---
 
-## 🔧 Installation
+## 🚀 Installation
 
-### Option 1: Local Setup
+### Step 1: Clone the Repository
 
 ```bash
-# Clone the repository
-git clone <your-repo-url>
+git clone <your-repository-url>
 cd linkedin-insights
+```
 
+### Step 2: Create Virtual Environment
+
+```bash
 # Create virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-# Install dependencies
-pip install -r requirements.txt
+# Activate it
+# Windows:
+venv\Scripts\activate
 
-# Set up environment variables
-cp .env.example .env
-# Edit .env with your API keys
-
-# Initialize database
-python -c "from main import Base, engine; Base.metadata.create_all(bind=engine)"
-
-# Run the application
-python main.py
+# Mac/Linux:
+source venv/bin/activate
 ```
 
-### Option 2: Docker Setup (Recommended)
+### Step 3: Install Dependencies
 
 ```bash
-# Clone the repository
-git clone <your-repo-url>
-cd linkedin-insights
-
-# Create .env file
-cp .env.example .env
-# Edit .env with your API keys
-
-# Build and run with Docker Compose
-docker-compose up --build
-
-# Access the API at http://localhost:8000
+pip install -r requirements.txt
 ```
+
+### Step 4: Setup Supabase Database
+
+1. Go to [Supabase Dashboard](https://app.supabase.com)
+2. Create a new project (wait 2-3 minutes)
+3. Go to **SQL Editor**
+4. Open `supabase_schema.sql` and copy all SQL
+5. Paste in SQL Editor and click **Run**
+6. Verify tables created: `pages`, `posts`, `comments`, `employees`
+
+### Step 5: Get API Keys
+
+#### Supabase Keys:
+1. Go to **Settings → API**
+2. Copy:
+   - **Project URL**: `https://xxxxx.supabase.co`
+   - **anon public key**: `eyJhbGci...`
+
+#### Gemini API Key:
+1. Go to [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Click **Create API Key**
+3. Copy the key (starts with `AIzaSy...`)
 
 ---
 
 ## ⚙️ Configuration
 
-### Required Environment Variables
-
-Create a `.env` file with the following:
+### Create .env File
 
 ```bash
-# Database
-DATABASE_URL=postgresql://user:password@localhost:5432/linkedin_insights
+# Copy example file
+cp .env.example .env
 
-# Redis
-REDIS_URL=redis://localhost:6379/0
-CACHE_TTL=300
+# Edit with your credentials
+nano .env  # or use any text editor
+```
 
-# API Keys (at least one required)
-PROXYCURL_API_KEY=your_proxycurl_key_here
-RAPIDAPI_KEY=your_rapidapi_key_here
+### .env Configuration
 
-# AI Services (optional - for bonus features)
-OPENAI_API_KEY=your_openai_key
-ANTHROPIC_API_KEY=your_anthropic_key
+```bash
+# Supabase (REQUIRED)
+SUPABASE_URL=https://xxxxx.supabase.co
+SUPABASE_KEY=eyJhbGciOiJ...
 
-# Application
-SCRAPING_METHOD=proxycurl
-DEBUG=True
+# LinkedIn Credentials (REQUIRED)
+LINKEDIN_EMAIL=your.email@example.com
+LINKEDIN_PASSWORD=your_password
+
+# Google Gemini AI (REQUIRED for AI summaries)
+GEMINI_API_KEY=AIzaSy...
+
+# Application Settings
 PORT=8000
+HOST=0.0.0.0
+DEBUG=True
 ```
-
-### Getting API Keys
-
-1. **Proxycurl (Recommended)** - https://nubela.co/proxycurl/
-   - Sign up for free tier (10 credits)
-   - Most reliable for LinkedIn data
-   
-2. **RapidAPI** - https://rapidapi.com/
-   - Search for "LinkedIn" scrapers
-   - Multiple options available
 
 ---
 
-## 🚀 Usage
+## 🎯 Quick Start
 
-### Quick Start
+### Option 1: Test Scraper First (Recommended)
 
 ```bash
-# Start the server
+# Run diagnostic
+python diagnose.py
+
+# Test scraper
+python test_scraper.py
+```
+
+This will:
+- ✅ Check all dependencies
+- ✅ Test LinkedIn login
+- ✅ Scrape 3 test companies
+- ✅ Save debug screenshots
+
+### Option 2: Start API Directly
+
+```bash
+# Run the application
 python main.py
-
-# Or with uvicorn directly
-uvicorn main:app --reload
-
-# Access API documentation
-http://localhost:8000/docs
 ```
 
-### Test the Scraper First
-
-Before running the full application, test if your API can fetch LinkedIn data:
-
-```bash
-# Run the test script
-python linkedin_scraper_test.py
-
-# Or test specific company
-python -c "from linkedin_scraper_test import test_all_methods; test_all_methods('https://www.linkedin.com/company/deepsolv/')"
+You should see:
 ```
+✅ Connected to Supabase
+✅ Gemini AI initialized
+🚀 LinkedIn Insights API v2.0
+📍 Server: http://localhost:8000
+📚 API Docs: http://localhost:8000/docs
+```
+
+### Access the Application
+
+- **API**: http://localhost:8000
+- **Interactive Docs**: http://localhost:8000/docs
+- **Alternative Docs**: http://localhost:8000/redoc
 
 ---
 
-## 📡 API Endpoints
+## 📚 API Documentation
 
-### Core Endpoints
-
-#### 1. Get Page Details
-```http
-GET /api/v1/pages/{page_id}
+### Base URL
+```
+http://localhost:8000
 ```
 
-**Parameters:**
-- `page_id` (path): LinkedIn company page ID (e.g., "deepsolv")
-- `include_posts` (query): Include posts (default: true)
-- `include_employees` (query): Include employees (default: false)
+### Authentication
+No authentication required (for now)
 
-**Example:**
-```bash
-curl http://localhost:8000/api/v1/pages/deepsolv
+---
+
+### Endpoints
+
+#### 1. Health Check
+
+```http
+GET /health
 ```
 
 **Response:**
 ```json
 {
-  "id": 1,
-  "page_id": "deepsolv",
-  "name": "DeepSolv",
-  "url": "https://www.linkedin.com/company/deepsolv/",
-  "description": "AI-powered solutions...",
-  "industry": "Technology",
-  "followers_count": 15000,
-  "employees_count": 50,
+  "status": "healthy",
+  "database": "Supabase",
+  "ai": "Gemini"
+}
+```
+
+---
+
+#### 2. Get Company Page
+
+```http
+GET /api/v1/pages/{page_id}
+```
+
+**Parameters:**
+- `page_id` (path): LinkedIn company ID (e.g., "google", "microsoft")
+- `include_posts` (query): Include posts (default: true)
+- `include_employees` (query): Include employees (default: true)
+- `force_rescrape` (query): Re-scrape even if in DB (default: false)
+
+**Example:**
+```bash
+curl http://localhost:8000/api/v1/pages/google
+```
+
+**Response:**
+```json
+{
+  "id": "uuid",
+  "page_id": "google",
+  "name": "Google",
+  "url": "https://www.linkedin.com/company/google/",
+  "description": "A problem isn't truly solved until it's solved for all...",
+  "industry": "Software Development",
+  "followers_count": 30500000,
+  "employees_count": 150000,
+  "website": "https://www.google.com",
   "posts": [...],
   "employees": [...]
 }
 ```
 
-#### 2. List Pages with Filters
+---
+
+#### 3. List All Pages (with Filters)
+
 ```http
 GET /api/v1/pages
 ```
 
-**Parameters:**
-- `skip` (query): Pagination offset (default: 0)
-- `limit` (query): Max results (default: 10, max: 100)
-- `min_followers` (query): Minimum follower count
-- `max_followers` (query): Maximum follower count
-- `industry` (query): Filter by industry
-- `name_search` (query): Search by name
+**Query Parameters:**
+- `skip`: Offset for pagination (default: 0)
+- `limit`: Max results (default: 10, max: 100)
+- `min_followers`: Minimum follower count
+- `max_followers`: Maximum follower count
+- `industry`: Filter by industry (partial match)
+- `name_search`: Search by name (partial match)
 
-**Example:**
+**Examples:**
+
 ```bash
-# Find pages with 20k-40k followers
+# Get all pages
+curl http://localhost:8000/api/v1/pages
+
+# Filter by follower range (20k-40k)
 curl "http://localhost:8000/api/v1/pages?min_followers=20000&max_followers=40000"
 
 # Search by name
@@ -264,95 +356,167 @@ curl "http://localhost:8000/api/v1/pages?name_search=tech"
 
 # Filter by industry
 curl "http://localhost:8000/api/v1/pages?industry=software"
+
+# Pagination
+curl "http://localhost:8000/api/v1/pages?skip=10&limit=20"
 ```
 
-#### 3. Get Page Posts
+---
+
+#### 4. Get Company Posts
+
 ```http
 GET /api/v1/pages/{page_id}/posts
 ```
 
 **Parameters:**
-- `skip` (query): Pagination offset (default: 0)
-- `limit` (query): Max results (default: 15, max: 25)
+- `skip`: Offset (default: 0)
+- `limit`: Max results (default: 15, max: 25)
 
 **Example:**
 ```bash
-curl http://localhost:8000/api/v1/pages/deepsolv/posts
+curl http://localhost:8000/api/v1/pages/google/posts
 ```
 
-#### 4. Get Page Employees
+**Response:**
+```json
+[
+  {
+    "id": "uuid",
+    "page_id": "page_uuid",
+    "post_id": "google_post_1",
+    "content": "Exciting news from Google...",
+    "posted_at": "2024-12-10T10:00:00",
+    "likes_count": 15000,
+    "comments_count": 250,
+    "shares_count": 0,
+    "post_url": "https://linkedin.com/posts/..."
+  }
+]
+```
+
+---
+
+#### 5. Get Company Employees
+
 ```http
 GET /api/v1/pages/{page_id}/employees
 ```
 
+**Parameters:**
+- `skip`: Offset (default: 0)
+- `limit`: Max results (default: 50, max: 100)
+
 **Example:**
 ```bash
-curl http://localhost:8000/api/v1/pages/deepsolv/employees
+curl http://localhost:8000/api/v1/pages/google/employees
 ```
 
-#### 5. Generate AI Summary (Bonus)
+---
+
+#### 6. Generate AI Summary ⭐
+
 ```http
 POST /api/v1/pages/{page_id}/summary
 ```
 
 **Example:**
 ```bash
-curl -X POST http://localhost:8000/api/v1/pages/deepsolv/summary
+curl -X POST http://localhost:8000/api/v1/pages/google/summary
 ```
 
 **Response:**
 ```json
 {
-  "page_id": "deepsolv",
-  "summary": "DeepSolv is a technology company...",
-  "follower_analysis": "Total followers: 15,000",
-  "content_type": "Professional content",
-  "engagement_insights": "High engagement on technical posts",
-  "generated_at": "2024-12-13T10:30:00"
+  "page_id": "google",
+  "page_name": "Google",
+  "summary": "Google is a leading technology company...",
+  "follower_analysis": "With over 30M followers, Google has one of the largest corporate presences on LinkedIn...",
+  "content_analysis": "Posts regularly with a mix of product updates, company culture, and industry insights...",
+  "engagement_insights": "Average engagement of 15K+ likes per post with strong community interaction...",
+  "page_type": "Highly active enterprise presence with consistent engagement",
+  "generated_at": "2024-12-14T10:00:00"
 }
 ```
 
-#### 6. Health Check
+---
+
+#### 7. Get Page Statistics
+
 ```http
-GET /health
+GET /api/v1/stats/{page_id}
 ```
 
-#### 7. Clear Cache
-```http
-POST /api/v1/cache/clear
+**Example:**
+```bash
+curl http://localhost:8000/api/v1/stats/google
 ```
+
+**Response:**
+```json
+{
+  "page_id": "google",
+  "page_name": "Google",
+  "in_database": true,
+  "counts": {
+    "posts": 15,
+    "employees": 20,
+    "comments": 0
+  },
+  "company_info": {
+    "followers": 30500000,
+    "employees_count": 150000,
+    "industry": "Software Development"
+  }
+}
+```
+
+---
+
+#### 8. Debug Endpoint
+
+```http
+GET /api/v1/debug/{page_id}
+```
+
+Check if scraper is working properly.
 
 ---
 
 ## 🧪 Testing
 
-### Manual Testing with cURL
+### Manual Testing
 
 ```bash
-# Test health endpoint
+# 1. Test health
 curl http://localhost:8000/health
 
-# Fetch a company page
-curl http://localhost:8000/api/v1/pages/microsoft
+# 2. Scrape a company
+curl http://localhost:8000/api/v1/pages/google
 
-# Filter pages by followers
-curl "http://localhost:8000/api/v1/pages?min_followers=10000&max_followers=50000"
+# 3. List all companies
+curl http://localhost:8000/api/v1/pages
 
-# Get posts for a page
-curl http://localhost:8000/api/v1/pages/microsoft/posts
+# 4. Filter by followers
+curl "http://localhost:8000/api/v1/pages?min_followers=1000000"
+
+# 5. Get posts
+curl http://localhost:8000/api/v1/pages/google/posts
+
+# 6. Generate AI summary
+curl -X POST http://localhost:8000/api/v1/pages/google/summary
 ```
 
-### Testing with Postman
+### Using Postman
 
-1. Import the `postman_collection.json` file
-2. Set environment variables:
-   - `BASE_URL`: `http://localhost:8000`
-3. Run the collection
+1. Import `postman_collection.json` (if provided)
+2. Set environment variable `base_url` = `http://localhost:8000`
+3. Run requests
 
 ### Automated Tests
 
 ```bash
-# Run tests
+# Run test suite
 pytest
 
 # Run with coverage
@@ -361,214 +525,295 @@ pytest --cov=app tests/
 
 ---
 
-## 🐳 Docker Deployment
+## 🐛 Troubleshooting
 
-### Build and Run
+### Common Issues
 
-```bash
-# Build the image
-docker build -t linkedin-insights .
+#### Issue 1: "Company page not found"
 
-# Run with Docker Compose
-docker-compose up -d
-
-# View logs
-docker-compose logs -f api
-
-# Stop services
-docker-compose down
+**Symptoms:**
+```
+❌ Company page not found
+❌ Failed to scrape meta
 ```
 
-### Docker Hub Deployment
+**Solutions:**
+1. **Run diagnostic:**
+   ```bash
+   python diagnose.py
+   ```
 
+2. **Test scraper with visible browser:**
+   ```bash
+   python test_scraper.py
+   ```
+
+3. **Check if logged in:**
+   - LinkedIn login might have failed
+   - 2FA verification needed
+   - Increase wait time in `login()` method
+
+4. **Try with headless=False:**
+   - See what's actually happening
+   - Check if you're being redirected
+
+---
+
+#### Issue 2: Data not storing in Supabase
+
+**Symptoms:**
+```
+⚠️ No data returned from insert
+```
+
+**Solutions:**
+1. **Check Supabase connection:**
+   ```bash
+   # Test connection
+   python -c "from supabase import create_client; import os; from dotenv import load_dotenv; load_dotenv(); client = create_client(os.getenv('SUPABASE_URL'), os.getenv('SUPABASE_KEY')); print('✅ Connected')"
+   ```
+
+2. **Verify table structure:**
+   - Go to Supabase → Table Editor
+   - Check if tables exist: pages, posts, employees, comments
+
+3. **Check for data type mismatches:**
+   - Look at console errors
+   - Verify field types match schema
+
+---
+
+#### Issue 3: ChromeDriver errors
+
+**Symptoms:**
+```
+SessionNotCreatedException: Message: session not created: This version of ChromeDriver only supports Chrome version XX
+```
+
+**Solutions:**
 ```bash
-# Tag the image
-docker tag linkedin-insights yourusername/linkedin-insights:latest
+# Update webdriver-manager
+pip install --upgrade webdriver-manager
 
-# Push to Docker Hub
-docker push yourusername/linkedin-insights:latest
+# Or manually download matching ChromeDriver
+# https://chromedriver.chromium.org/downloads
 ```
 
 ---
 
-## 🌐 Cloud Deployment
+#### Issue 4: AI Summary not working
+
+**Symptoms:**
+```
+⚠️ GEMINI_API_KEY not set
+```
+
+**Solutions:**
+1. Check `.env` file has `GEMINI_API_KEY`
+2. Get new key from https://makersuite.google.com/app/apikey
+3. Verify key starts with `AIzaSy...`
+4. Restart application after adding key
+
+---
+
+#### Issue 5: Followers showing wrong value
+
+**Symptoms:**
+```
+followers_count: null
+or
+followers: "Software Development"
+```
+
+**Solutions:**
+- ✅ Use the updated `linkedin_custom_scraper.py`
+- CSS selectors have been fixed
+- Re-scrape with `force_rescrape=true`
+
+---
+
+### Debug Mode
+
+Enable debug mode to save screenshots and HTML:
+
+```python
+# In linkedin_custom_scraper.py
+data = scraper.scrape_company_page("google", debug=True)
+```
+
+This creates:
+- `google_debug.png` - Screenshot of what scraper sees
+- `google_source.html` - Full HTML source
+
+---
+
+## 📁 Project Structure
+
+```
+linkedin-insights/
+├── main.py                      # FastAPI application
+├── linkedin_custom_scraper.py   # Selenium scraper
+├── requirements.txt             # Python dependencies
+├── .env                        # Environment variables (not in git)
+├── .env.example                # Example env file
+├── supabase_schema.sql         # Database schema
+├── diagnose.py                 # Diagnostic script
+├── test_scraper.py             # Test scraper script
+├── README.md                   # This file
+├── SETUP_GUIDE.md             # Detailed setup guide
+└── postman_collection.json    # Postman API collection (optional)
+```
+
+---
+
+## 🔐 Security & Best Practices
+
+### Environment Variables
+- ✅ Never commit `.env` file to git
+- ✅ Use `.env.example` as template
+- ✅ Rotate API keys regularly
+
+### LinkedIn Scraping
+- ⚠️ Use a test account, not your main account
+- ⚠️ Respect rate limits
+- ⚠️ Add delays between requests
+- ⚠️ LinkedIn may block automated access
+
+### Database
+- ✅ Use Row Level Security (RLS) in Supabase
+- ✅ Keep Supabase key secure
+- ✅ Regular backups
+
+### API Security (Production)
+- 🔒 Add authentication (JWT tokens)
+- 🔒 Implement rate limiting
+- 🔒 Use HTTPS
+- 🔒 Input validation
+
+---
+
+## 🚀 Deployment
 
 ### Deploy to Heroku
 
 ```bash
-# Login to Heroku
+# Login
 heroku login
 
 # Create app
 heroku create your-app-name
 
-# Add PostgreSQL
-heroku addons:create heroku-postgresql:hobby-dev
-
-# Add Redis
-heroku addons:create heroku-redis:hobby-dev
-
 # Set environment variables
-heroku config:set PROXYCURL_API_KEY=your_key
+heroku config:set SUPABASE_URL=your_url
+heroku config:set SUPABASE_KEY=your_key
+heroku config:set LINKEDIN_EMAIL=your_email
+heroku config:set LINKEDIN_PASSWORD=your_password
+heroku config:set GEMINI_API_KEY=your_key
 
 # Deploy
 git push heroku main
 ```
 
-### Deploy to AWS ECS/Fargate
+### Deploy to Railway
 
-1. Push Docker image to ECR
-2. Create ECS task definition
-3. Configure RDS for PostgreSQL
-4. Configure ElastiCache for Redis
-5. Deploy using ECS service
+1. Connect GitHub repo
+2. Add environment variables
+3. Deploy automatically
 
-### Deploy to Google Cloud Run
+### Deploy to Render
 
-```bash
-# Build and push to GCR
-gcloud builds submit --tag gcr.io/PROJECT_ID/linkedin-insights
-
-# Deploy
-gcloud run deploy linkedin-insights \
-  --image gcr.io/PROJECT_ID/linkedin-insights \
-  --platform managed \
-  --region us-central1 \
-  --allow-unauthenticated
-```
+1. Connect GitHub repo
+2. Set build command: `pip install -r requirements.txt`
+3. Set start command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+4. Add environment variables
 
 ---
 
-## 📊 Performance & Caching
+## 📊 Performance Considerations
 
-### Caching Strategy
+### Scraping Performance
+- Async operations throughout
+- Parallel scraping for multiple companies
+- Smart caching to avoid re-scraping
 
-- **Cache TTL**: 5 minutes (configurable)
-- **Cache Keys**: `page:{page_id}`
-- **Cache Storage**: Redis
+### Database Performance
+- Indexed columns for fast queries
+- Efficient joins with proper relationships
+- Pagination to limit large responses
 
-### Performance Tips
-
-1. Enable caching for frequently accessed pages
-2. Use pagination for large result sets
-3. Use `include_posts=false` if posts aren't needed
-4. Configure connection pooling for database
-
----
-
-## 🔒 Security Best Practices
-
-1. **API Keys**: Never commit API keys to git
-2. **Environment Variables**: Use `.env` for local, secrets management for production
-3. **Rate Limiting**: Implement rate limiting for production
-4. **CORS**: Configure CORS properly for your frontend
-5. **Authentication**: Add JWT authentication for production use
-
----
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-#### 1. Database Connection Error
-```bash
-# Check if PostgreSQL is running
-docker-compose ps
-# Or
-psql -U postgres -h localhost
-```
-
-#### 2. Redis Connection Error
-```bash
-# Check Redis
-redis-cli ping
-```
-
-#### 3. Scraping Fails
-```bash
-# Test scraper directly
-python linkedin_scraper_test.py
-```
-
-#### 4. API Key Invalid
-- Verify API key in `.env`
-- Check API credit balance
-- Test API key directly with curl
-
----
-
-## 📈 Monitoring
-
-### Health Checks
-
-```bash
-# Application health
-curl http://localhost:8000/health
-
-# Database health
-docker-compose exec db pg_isready
-
-# Redis health
-docker-compose exec redis redis-cli ping
-```
-
-### Logs
-
-```bash
-# Application logs
-docker-compose logs -f api
-
-# Database logs
-docker-compose logs -f db
-
-# All logs
-docker-compose logs -f
-```
+### API Performance
+- FastAPI's async capabilities
+- Background tasks for long operations
+- Response compression
 
 ---
 
 ## 🤝 Contributing
 
+Contributions are welcome! Please follow these steps:
+
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Write tests
-5. Submit a pull request
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+### Code Style
+- Follow PEP 8
+- Add docstrings
+- Write tests for new features
+- Update README for API changes
 
 ---
 
-## 📝 License
+## 📄 License
 
-MIT License - see LICENSE file for details
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
 ## 🙏 Acknowledgments
 
-- FastAPI framework
-- Proxycurl API
-- SQLAlchemy ORM
-- Redis caching
+- [FastAPI](https://fastapi.tiangolo.com/) - Modern Python web framework
+- [Supabase](https://supabase.com/) - Open source Firebase alternative
+- [Selenium](https://www.selenium.dev/) - Browser automation
+- [Google Gemini](https://ai.google.dev/) - AI-powered insights
 
 ---
 
 ## 📞 Support
 
 For issues and questions:
-- Create an issue on GitHub
-- Email: your.email@example.com
+- 📧 Email: support@example.com
+- 🐛 Issues: [GitHub Issues](https://github.com/yourusername/linkedin-insights/issues)
+- 💬 Discussions: [GitHub Discussions](https://github.com/yourusername/linkedin-insights/discussions)
 
 ---
 
-## 🎯 Next Steps
+## 🗺️ Roadmap
 
-1. **Test the scraper** with `linkedin_scraper_test.py`
-2. **Set up API keys** in `.env`
-3. **Run the application** with Docker or locally
-4. **Access API docs** at `http://localhost:8000/docs`
-5. **Test endpoints** with Postman or cURL
-6. **Deploy to cloud** when ready
+### v2.1 (Planned)
+- [ ] Real-time scraping via WebSocket
+- [ ] Export data to CSV/Excel
+- [ ] Scheduled scraping (cron jobs)
+- [ ] Company comparison feature
+
+### v3.0 (Future)
+- [ ] User authentication
+- [ ] Dashboard UI
+- [ ] Advanced analytics
+- [ ] Sentiment analysis
+
+---
+
+## ⭐ Star History
+
+If you find this project useful, please consider giving it a star!
+
+[![Star History Chart](https://api.star-history.com/svg?repos=yourusername/linkedin-insights&type=Date)](https://star-history.com/#yourusername/linkedin-insights&Date)
 
 ---
 
 **Built with ❤️ for the GenAI Developer Intern Assignment**
+
+Last Updated: December 14, 2024
