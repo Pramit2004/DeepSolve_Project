@@ -1,0 +1,5 @@
+/.env
+/linkedin_api.log
+/linkedin_cookies.json
+/venv
+/__pycache__

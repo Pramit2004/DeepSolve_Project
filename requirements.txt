@@ -1,0 +1,51 @@
+# Core Framework
+fastapi
+uvicorn
+pydantic
+pydantic-settings
+
+# Database
+sqlalchemy
+psycopg2-binary
+alembic
+
+# Async support
+asyncio
+aiohttp
+httpx
+
+# Caching
+redis
+hiredis
+
+# Scraping
+requests
+beautifulsoup4
+lxml
+selenium
+webdriver-manager
+playwright
+
+# API clients
+openai
+anthropic
+
+# Utilities
+python-dotenv
+python-multipart
+email-validator
+
+# Testing
+pytest
+pytest-asyncio
+httpx
+
+# Monitoring & Logging
+loguru
+
+# Cloud Storage (Bonus)
+boto3
+google-cloud-storage
+langchain
+langchain-google-genai
+google-generativeai
